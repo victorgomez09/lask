@@ -2,8 +2,8 @@
 
 import fs from 'fs'
 import path from 'path'
-import { buildLibrary } from './buildLibrary'
-import { devLibrary } from './devLibrary'
+import { build } from './build'
+import { dev } from './dev'
 
 export interface Options {
   isDev: boolean
@@ -77,7 +77,7 @@ export async function lask(opts = {} as Partial<Options>) {
   const entryPointsAbs = entryPoints.map((entryPoint) => path.join(cwd, entryPoint))
 
   if (isDev) {
-    await buildLibrary({
+    await build({
       name: pkg.name,
       outdir: outDirAbs,
       tsconfig: configAbs,
@@ -90,7 +90,7 @@ export async function lask(opts = {} as Partial<Options>) {
       calculateSize,
     })
 
-    return devLibrary({
+    return dev({
       name: pkg.name,
       outdir: outDirAbs,
       tsconfig: configAbs,
@@ -110,7 +110,7 @@ export async function lask(opts = {} as Partial<Options>) {
       }
     }
 
-    return buildLibrary({
+    return build({
       name: pkg.name,
       outdir: outDirAbs,
       tsconfig: configAbs,

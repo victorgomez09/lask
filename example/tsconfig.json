@@ -34,6 +34,9 @@
     "types": ["node", "jest"],
     "outDir": "./dist",
     "rootDir": "src",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@app/*": ["./src/app/*"]
+    }
   }
 }

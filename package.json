@@ -27,7 +27,9 @@
   },
   "dependencies": {
     "commander": "^2.20.0",
-    "esbuild": "^0.14.18",
+    "esbuild": "^0.19.2",
+    "globby": "^10.0.1",
+    "json5": "^2.2.3",
     "tsconfig-paths": "^3.12.0",
     "tsconfig-replace-paths": "^0.0.11",
     "zlib": "^1.0.5"

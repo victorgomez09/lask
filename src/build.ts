@@ -3,8 +3,9 @@ import path from 'path'
 import { buildSync } from 'esbuild'
 import { gzip } from 'zlib'
 import { spawn } from 'child_process'
+import { replaceTypescriptPaths } from './replace-ts-paths'
 
-export function buildLibrary({
+export function build({
   name,
   isNode,
   outdir,
@@ -64,11 +65,18 @@ export function buildLibrary({
           }
         }
         if (cfgWithPaths) {
-          const trp = spawn(`tsconfig-replace-paths`, [`-p`, cfgWithPaths], { shell: true })
-          trp.on('exit', () => {
+          // const trp = spawn(`tsconfig-replace-paths`, [`-p`, cfgWithPaths], { shell: true })
+          // trp.on('exit', () => {
+          //   log(`✔ ${name}: Resolved paths from plugin`)
+          //   finish(true)
+          // })
+          const replaced = replaceTypescriptPaths({
+            project: cfgWithPaths
+          })
+          if (replaced) {
             log(`✔ ${name}: Resolved paths`)
             finish(true)
-          })
+          }
         } else {
           finish(true)
         }
@@ -116,7 +124,7 @@ export function buildLibrary({
       finish(false, true)
     } catch (e) {
       log(`x ${name}: Build failed due to an error.`)
-      // log(e)
+      log(e)
     }
   })
 }
