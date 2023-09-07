@@ -22,7 +22,8 @@ export interface Options {
   devConfig: string
   buildConfig: string
   define: { [key: string]: string }
-  calculateSize: boolean
+  calculateSize: boolean,
+  logLevel: 'info' | 'error' | 'warning' | 'debug' | 'verbose' | 'silent'
 }
 
 export async function lask(opts = {} as Partial<Options>) {
@@ -46,6 +47,7 @@ export async function lask(opts = {} as Partial<Options>) {
       'process.env.NODE_ENV': isDev ? '"development"' : '"production"',
     },
     calculateSize = true,
+    logLevel = 'silent'
   } = opts
 
   const cwd = process.cwd()
@@ -101,6 +103,7 @@ export async function lask(opts = {} as Partial<Options>) {
       isNode,
       define,
       calculateSize,
+      logLevel
     })
   } else {
     // Delete dist

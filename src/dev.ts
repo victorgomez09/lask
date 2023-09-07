@@ -1,6 +1,6 @@
 /** @format */
 
-import { build, BuildContext, BuildOptions, context, Format, PluginBuild } from 'esbuild'
+import { context, Format, PluginBuild } from 'esbuild'
 import { spawn } from 'child_process'
 
 export async function dev({
@@ -12,6 +12,7 @@ export async function dev({
   target,
   define,
   entryPoints,
+  logLevel = 'silent'
 }: {
   name: string
   outdir: string
@@ -22,7 +23,8 @@ export async function dev({
   external: string[]
   format: 'esm' | 'cjs'
   target: string
-  define: Record<string, string>
+  define: Record<string, string>,
+  logLevel: 'info' | 'error' | 'warning' | 'debug' | 'verbose' | 'silent'
 }) {
   const { log } = console
 
@@ -55,34 +57,38 @@ export async function dev({
     // Build packages
     (Array.isArray(format) ? format : [format]).forEach(async (fmt) => {
       const extension = fmt === 'esm' ? '.mjs' : '.js'
-      const plugins = [{
-        name: 'watch-plugin',
-        setup(build: PluginBuild) {
-          let count = 0;
-          build.onEnd(result => {
-            if (result.errors.length) throw Error(`${name}: Rebuild failed`)
-            if (count++ > 0) log(`✔ ${name}: Rebuilt package with changes ${Object.keys(result.metafile!.inputs).join(", ")}`)
-          });
-        },
-      }];
-      const ctx = await context({entryPoints,
-          outdir,
-          tsconfig,
-          external,
-          define,
-          logLevel: 'info',
-          format: fmt as Format,
-          target,
-          platform: isNode ? 'node' : 'neutral',
-          outExtension: { '.js': extension },
-          minify: false,
-          bundle: true,
-          treeShaking: true,
-          metafile: true,
-          sourcemap: true,
-          // plugins
-        })
-        await ctx.watch();
+      const plugins = [
+        {
+          name: 'watch-plugin',
+          setup(build: PluginBuild) {
+            let count = 0;
+            build.onEnd(result => {
+              if (result.errors.length) throw Error(`${name}: Rebuild failed`)
+              if (count++ > 0) log(`✔ ${name}: Rebuilt package`)
+            });
+          }
+        }];
+      const ctx = await context({
+        entryPoints,
+        outdir,
+        tsconfig,
+        external,
+        define,
+        format: fmt as Format,
+        target,
+        platform: isNode ? 'node' : 'neutral',
+        outExtension: { '.js': extension },
+        minify: false,
+        bundle: true,
+        treeShaking: true,
+        metafile: true,
+        sourcemap: true,
+        write: false,
+        logLevel,
+        color: true,
+        plugins: logLevel !== 'silent' ? plugins : []
+      })
+      await ctx.watch();
     })
   } catch (err) {
     ts?.kill()
